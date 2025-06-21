@@ -71,4 +71,13 @@
     ![cell-13-output-1](https://github.com/user-attachments/assets/9b6ce10f-c659-4070-9082-5aba8bc59904)
     * A mediana é aproximadamente 5 milhões de habitantes
     * Metade dos estados tem entre 2 e 7 milhões de habitantes
-    * Populações acima de 13 milhões são consideradas incomuns (outliers)
+    * Populações acima de 13 milhões são consideradas incomuns (outliers = valores muito distantes dos outros)
+
+### Covariância 
+* Comportamento entre (2 ou mais) variáveis
+* Útil para encontrar padrões de relacionamento entre variáveis (ex: estimar votos de candidatos com base nos gastos de campanha)
+  - Duas variáveis categóricas/qualitativas  
+    ![image](https://github.com/user-attachments/assets/a9e35912-68dc-4098-8264-931225ccfa86)
+    * O nível do empréstimo (grade) é uma variável categórica ordinal (Há uma ordem do nível melhor (A) para o pior (G))
+    * O resultado (status) é uma variável não ordinal (Não há ordem pré-definida dos seus valores)
+  - 
