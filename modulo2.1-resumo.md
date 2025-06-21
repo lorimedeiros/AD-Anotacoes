@@ -76,8 +76,100 @@
 ### Covariância 
 * Comportamento entre (2 ou mais) variáveis
 * Útil para encontrar padrões de relacionamento entre variáveis (ex: estimar votos de candidatos com base nos gastos de campanha)
-  - Duas variáveis categóricas/qualitativas  
-    ![image](https://github.com/user-attachments/assets/a9e35912-68dc-4098-8264-931225ccfa86)
-    * O nível do empréstimo (grade) é uma variável categórica ordinal (Há uma ordem do nível melhor (A) para o pior (G))
-    * O resultado (status) é uma variável não ordinal (Não há ordem pré-definida dos seus valores)
-  - 
+- Duas variáveis categóricas/qualitativas  
+  ![image](https://github.com/user-attachments/assets/a9e35912-68dc-4098-8264-931225ccfa86)
+  * O nível do empréstimo (grade) é uma variável categórica ordinal (Há uma ordem do nível melhor (A) para o pior (G))
+  * O resultado (status) é uma variável não ordinal (Não há ordem pré-definida dos seus valores)
+  - Podemos contar as observações para cada combinação (Visualizando com tabela pivot e mapa de calor (heatmap))
+      ```python
+      loans.pivot_table(index='grade', columns='status', aggfunc=lambda x: len(x))
+      ```
+      ![image](https://github.com/user-attachments/assets/b910cf79-0004-42ac-9eab-6269408f5543)
+      ```python
+      fig, ax = plt.subplots(figsize=(5, 4))
+      ax = sns.heatmap(loans_pivot, annot=True, fmt="d")
+      ```
+      ![image](https://github.com/user-attachments/assets/420d4e2e-0bcb-49f7-aa59-ed90190ed24e)
+
+- Uma categórica e uma contínua  
+  ![image](https://github.com/user-attachments/assets/c4143acf-0e3b-466d-a302-a38e9109699d)
+  * Covariância de 2 variáveis da base de dados de voôs cancelados  
+    airline (categórica não ordinal): nome da empresa aérea  
+    pct_carrier_delay (contínua): % de atrasos causados pela empresa
+
+  * Boxplot e density plot da contínua agrupado pela categórica
+    ```python
+    loans.pivot_table(index='grade', columns='status', aggfunc=lambda x: len(x))
+    ```
+    ![image](https://github.com/user-attachments/assets/ef9a39a8-9fff-48ae-95e4-f0f9db9b5a4f)
+    ```python
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax = sns.kdeplot(data=airline_stats, x="pct_carrier_delay", hue="airline")
+    ```
+    ![image](https://github.com/user-attachments/assets/38913a94-00cf-44a4-a46b-fc601d71265d)
+
+  * violin plot é outra alternativa ao boxplot
+    ```python
+    fig, ax = plt.subplots(figsize=(6, 5))
+    ax = sns.violinplot(data=airline_stats, x='airline', y='pct_carrier_delay', ax=ax, inner='quartile')
+    ```
+    ![image](https://github.com/user-attachments/assets/13aa1926-dc93-4252-9efa-d747228cde73)
+    - Mostra a densidade da contínua para cada grupo da categóricas
+    - É mais fácil observar a concentração dos dados.
+    - Nota-se:
+      * Uma concentração mais perto de 0% para a Alaska
+      * Delta e United com mais valores extremos (outliers)
+
+- Duas variáveis contínuas  
+  ![image](https://github.com/user-attachments/assets/b4ea2d51-8d2a-4de3-9963-aea1c1839da2)
+  * Vamos analisar a variação diária da cotação de empresas de telecomunicação na bolsa de valores
+  * Se quisermos comparar a covariância da cotação de duas empresas? (Teremos duas variáveis contínuas)
+
+  * Scatterplot comparando cotação diária da Verizon (V) x AT&T (T) (Com transparência (alpha) destacamos a concentração dos pontos)
+    ```python
+    ax = telecom.plot.scatter(x='T', y='VZ', figsize=(6, 5))
+    ```
+    ![image](https://github.com/user-attachments/assets/8f3e28ed-b407-47bf-8df3-5b491198260e)
+
+    ```python
+    ax = telecom.plot.scatter(x='T', y='VZ', alpha=0.4, linewidth=0, figsize=(6, 5))
+    ```
+    ![image](https://github.com/user-attachments/assets/6555d7f8-c62b-4807-a3aa-ba0e98fcbb86)
+
+  * Outras alternativas: hexbin e jointplot (com kind='hex')
+    ```python
+    ax = telecom.plot.hexbin(x='T', y='VZ', gridsize=30, sharex=False, figsize=(6, 5))
+    ```
+    ![image](https://github.com/user-attachments/assets/97429926-f78c-4ab9-839c-c946484c6d3e)
+
+    ```python
+    ax = sns.jointplot(x='T', y='VZ', kind="hex", height=5, data=telecom)
+    ```
+    ![image](https://github.com/user-attachments/assets/b5d11130-d69c-45f3-a2c0-8e96a4c63e2b)
+
+  * Analisando tamanho x valor de casas em uma região dos EUA  
+    ![image](https://github.com/user-attachments/assets/7b5d603b-2d86-4d7c-8d0a-946a7852160b)
+    ```python
+    ax = sns.jointplot(data=kc_tax0, x='SqFtTotLiving', y='TaxAssessedValue', kind="hex", height=5)
+    ```
+    ![image](https://github.com/user-attachments/assets/5cb2b8f1-4bd6-4812-bce9-d9f63d41eccb)
+
+- Duas contínuas e uma categórica
+  ```python
+  def hexbin(x, y, color, **kwargs):
+    cmap = sns.light_palette(color, as_cmap=True)
+    plt.hexbin(x, y, gridsize=25, cmap=cmap, **kwargs)
+
+  g = sns.FacetGrid(kc_tax_zip, col='ZipCode', col_wrap=2)
+  ax = g.map(hexbin, 'SqFtTotLiving', 'TaxAssessedValue', extent=[0, 3500, 0, 700000])
+
+  g.set_axis_labels('Finished Square Feet', 'Tax Assessed Value')
+  g.set_titles('Zip code {col_name:.0f}')
+
+  plt.tight_layout()
+  plt.show()
+  ```
+  ![image](https://github.com/user-attachments/assets/fce412d1-b803-4027-acf8-648524c5af36)  
+  * A localização (ZipCode) da casa também influencia o preço?
+  * Usamos facets para quebrar em um subplot por categoria
+  * Nota-se a influência tanto da localização quanto do tamanho no valor da casa
